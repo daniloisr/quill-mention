@@ -14,9 +14,10 @@ class MentionBlot extends Embed {
 
   static create(data) {
     const node = super.create();
+
     const denotationChar = document.createElement("span");
     denotationChar.className = "ql-mention-denotation-char";
-    denotationChar.innerHTML = data.denotationChar;
+    denotationChar.innerText = data.denotationChar;
 
 
     const AndroidBackspaceFix = document.createElement("span");
@@ -25,8 +26,14 @@ class MentionBlot extends Embed {
     AndroidBackspaceFix.setAttribute("style", "display: inline-block; height: 1px; width: 1px; overflow: hidden; ");
 
     node.appendChild(denotationChar);
-    node.innerHTML += data.value;
+
+    if (typeof this.render === "function") {
+      node.appendChild(this.render(data));
+    } else {
+      node.innerText += data.value;
+    }
     node.appendChild(AndroidBackspaceFix)
+
     return MentionBlot.setDataValues(node, data);
   }
 
@@ -37,7 +44,7 @@ class MentionBlot extends Embed {
     }, 0);
 
     const domNode = element;
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       domNode.dataset[key] = data[key];
     });
     return domNode;
@@ -63,7 +70,7 @@ class MentionBlot extends Embed {
 
   attach() {
     super.attach();
-  
+
     if (!this.mounted) {
       this.mounted = true;
       this.clickHandler = this.getClickHandler();
@@ -84,7 +91,7 @@ class MentionBlot extends Embed {
   }
 
   getClickHandler() {
-    return e => {
+    return (e) => {
       const event = this.buildEvent("mention-clicked", e);
       window.dispatchEvent(event);
       e.preventDefault();
@@ -92,21 +99,21 @@ class MentionBlot extends Embed {
   }
 
   getHoverHandler() {
-    return e => {
-      const event = this.buildEvent('mention-hovered', e);
+    return (e) => {
+      const event = this.buildEvent("mention-hovered", e);
       window.dispatchEvent(event);
       e.preventDefault();
-    }
+    };
   }
 
   buildEvent(name, e) {
-      const event = new Event(name, {
-        bubbles: true,
-        cancelable: true
-      });
-      event.value = Object.assign({}, this.domNode.dataset);
-      event.event = e;
-      return event;
+    const event = new Event(name, {
+      bubbles: true,
+      cancelable: true,
+    });
+    event.value = Object.assign({}, this.domNode.dataset);
+    event.event = e;
+    return event;
   }
 
   hoverHandler;
@@ -116,4 +123,4 @@ MentionBlot.blotName = "mention";
 MentionBlot.tagName = "span";
 MentionBlot.className = "mention";
 
-Quill.register(MentionBlot);
+Quill.register("blots/mention", MentionBlot);
